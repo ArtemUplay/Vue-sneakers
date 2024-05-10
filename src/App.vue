@@ -7,6 +7,7 @@ import CardList from './components/CardList.vue'
 import Drawer from './components/Drawer.vue'
 
 const items = ref([])
+
 const filters = reactive({
   sortBy: 'title',
   searchQuery: ''
@@ -16,8 +17,34 @@ const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
 }
 
+const fetchFavorites = async () => {
+  try {
+    const { data: favorites } = await axios.get('https://bdb6edabdaa78d24.mokky.dev/favorites')
+
+    items.value = items.value.map((item) => {
+      const favorite = favorites.find((favorite) => favorite.productId === item.id)
+
+      if (!favorite) {
+        return item
+      }
+
+      return {
+        ...item,
+        isFavorite: true,
+        favoriteId: favorite.id
+      }
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const onChangeSearchInput = (event) => {
   filters.searchQuery = event.target.value
+}
+
+const addToFavorite = async (item) => {
+  item.isFavorite = true
 }
 
 const fetchItems = async () => {
@@ -34,13 +61,20 @@ const fetchItems = async () => {
       params
     })
 
-    items.value = data
+    items.value = data.map((obj) => ({
+      ...obj,
+      isFavorite: false,
+      isAdded: false
+    }))
   } catch (error) {
     console.log(error)
   }
 }
 
-onMounted(fetchItems)
+onMounted(async () => {
+  await fetchItems()
+  await fetchFavorites()
+})
 watch(filters, fetchItems)
 </script>
 
