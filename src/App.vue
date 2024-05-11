@@ -166,14 +166,6 @@ watch(
   }
 )
 
-watch(
-  items,
-  () => {
-    console.log(items.value)
-  },
-  { deep: true }
-)
-
 provide('cart', {
   cartItems,
   closeDrawer,

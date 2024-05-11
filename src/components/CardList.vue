@@ -1,7 +1,7 @@
 <script setup>
 import Card from './Card.vue'
 
-const props = defineProps({
+defineProps({
   items: Array,
   addToFavorite: Function
 })
@@ -10,7 +10,7 @@ const emit = defineEmits(['addToFavorite', 'addToCart'])
 </script>
 
 <template>
-  <ul class="grid grid-cols-4 gap-5 mt-10">
+  <ul class="grid grid-cols-4 gap-5 mt-10" v-auto-animate>
     <Card
       v-for="item in items"
       :id="item.id"
