@@ -1,12 +1,12 @@
 <script setup>
 import Card from './Card.vue'
 
-defineProps({
+const props = defineProps({
   items: Array,
   addToFavorite: Function
 })
 
-const emit = defineEmits(['addToFavorite'])
+const emit = defineEmits(['addToFavorite', 'addToCart'])
 </script>
 
 <template>
@@ -20,6 +20,8 @@ const emit = defineEmits(['addToFavorite'])
       :price="item.price"
       :isFavorite="item.isFavorite"
       :onClickFavorite="() => emit('addToFavorite', item)"
+      :onClickAdd="() => emit('addToCart', item)"
+      :isAdded="item.isAdded"
     />
   </ul>
 </template>
