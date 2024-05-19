@@ -2,14 +2,39 @@
 import DrawerHead from './DrawerHead.vue'
 import CartListItem from './CartIListItem.vue'
 import InfoBlock from './InfoBlock.vue'
+import { ref, computed, inject } from 'vue'
+import axios from 'axios'
 
-const emit = defineEmits(['createOrder'])
-
-defineProps({
+const props = defineProps({
   totalPrice: Number,
-  vatPrice: Number,
-  disabledButton: Boolean
+  vatPrice: Number
 })
+
+const { cartItems, closeDrawer } = inject('cart')
+
+const isCreating = ref(false)
+const orderId = ref(null)
+
+const createOrder = async () => {
+  try {
+    isCreating.value = true
+    const { data } = await axios.post('https://bdb6edabdaa78d24.mokky.dev/orders', {
+      items: cartItems.value,
+      totalPrice: props.totalPrice.value
+    })
+
+    cartItems.value = []
+
+    orderId.value = data.id
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isCreating.value = false
+  }
+}
+
+const buttonDisabled = computed(() => isCreating.value || cartIsEmpty.value)
+const cartIsEmpty = computed(() => cartItems.value.length === 0)
 </script>
 
 <template>
@@ -18,10 +43,16 @@ defineProps({
     <DrawerHead />
 
     <InfoBlock
-      v-if="totalPrice === 0"
+      v-if="!totalPrice && !orderId"
       title="Корзина пустая"
       description="Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ."
       imageUrl="package-icon.png"
+    />
+    <InfoBlock
+      v-if="orderId"
+      title="Заказ оформлен!"
+      :description="`Ваш заказ #${orderId} скоро будет передан курьерской доставке`"
+      imageUrl="order-success-icon.png"
     />
 
     <div v-if="totalPrice > 0" class="flex flex-col justify-between mt-6">
@@ -40,8 +71,8 @@ defineProps({
           <b>{{ vatPrice }} ₽</b>
         </div>
         <button
-          :disabled="disabledButton"
-          @click="() => emit('createOrder')"
+          :disabled="buttonDisabled"
+          @click="createOrder"
           class="bg-lime-500 w-full rounded-xl py-3 text-white transition disabled:bg-slate-300 disabled:cursor-default hover:bg-lime-600 active:bg-lime-700 cursor-pointer"
         >
           Оформить заказ

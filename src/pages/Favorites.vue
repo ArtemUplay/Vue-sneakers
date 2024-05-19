@@ -18,7 +18,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h1>Мои закладки</h1>
+  <h1 class="text-3xl font-bold mb-8">Мои закладки</h1>
   <div>
     <CardList :items="favorites" isFavoritesPage />
   </div>
